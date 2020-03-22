@@ -1,7 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 from logging import Logger
-from typing import List, Sequence, Optional
+from typing import List, Optional, Sequence
 
 from csv_import.csv.parsers import (FileParser, FileParserFactory, ParsedLine,
                                     ParserOptions)

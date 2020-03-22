@@ -1,6 +1,6 @@
 from typing import List, Optional, Type
 from unittest import TestCase, mock
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, create_autospec
 
 from parameterized import parameterized
 
@@ -8,6 +8,7 @@ from csv_import.csv.parsers import (EchoValueParser, FileParser,
                                     FileParserFactory, Line, LineParser,
                                     NumberParser, ParsedLine, ParserOptions,
                                     ParsingError, StringParser, ValueParser)
+from csv_import.csv.text import TextReader
 from tests.csv_import.csv.test_text import mock_builtin_open
 
 
@@ -181,7 +182,8 @@ class LineParserTest(TestCase):
             expected_exception_type: Optional[Type] = None) -> None:
         # Arrange
         line_parser = LineParser(value_parsers, parser_options, skip_incorrect_lines)
-        input_line = Line(index=0, header=False, line=line)
+        file = create_autospec(TextReader)
+        input_line = Line(file=file, index=0, header=False, line=line)
 
         try:
             # Act
@@ -202,7 +204,8 @@ class LineParserTest(TestCase):
         # Arrange
         line = 'abc'
         next_line_parser = LineParser([StringParser()], ParserOptions(), False)
-        input_line = Line(index=0, header=False, line=line)
+        file = create_autospec(TextReader)
+        input_line = Line(file=file, index=0, header=False, line=line)
         next_line_parser_mock = mock.create_autospec(LineParser)
         next_line_parser_mock.parse = MagicMock(side_effect=lambda l: next_line_parser.parse(l))
         line_parser = LineParser([NumberParser()], ParserOptions(), False, next_line_parser_mock)

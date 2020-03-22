@@ -3,15 +3,15 @@ from typing import List, Sequence
 from unittest import TestCase
 from unittest.mock import MagicMock, call, create_autospec, patch
 
+from parameterized import parameterized
+
 from csv_import.csv.parsers import (FileParser, FileParserFactory, Line,
                                     LineParser, NumberParser, ParsedLine,
                                     ParserOptions, StringParser)
 from csv_import.csv.processors import (EchoValueProcessor, FileProcessor,
                                        FileProcessorFactory, LineProcessor,
                                        ValueProcessor)
-from csv_import.csv.text import TextWriter
-from parameterized import parameterized
-
+from csv_import.csv.text import TextReader, TextWriter
 from tests.csv_import.csv.test_text import mock_builtin_open
 
 
@@ -38,7 +38,7 @@ class LineProcessorTest(TestCase):
             'header string',
             [],
             ParserOptions(),
-            ParsedLine(Line(index=1, header=True, line='Name\tAge\tSalary')),
+            ParsedLine(Line(file=create_autospec(TextReader), index=1, header=True, line='Name\tAge\tSalary')),
             'Name\tAge\tSalary'
         ],
         [
@@ -46,7 +46,8 @@ class LineProcessorTest(TestCase):
             [EchoValueProcessor(), EchoValueProcessor(), EchoValueProcessor()],
             ParserOptions(),
             ParsedLine(
-                Line(index=1, header=False, line='John Doe\t23\t10,000'), parsed_values=['John Doe', '23', '10,000']
+                Line(file=create_autospec(TextReader), index=1, header=False, line='John Doe\t23\t10,000'),
+                parsed_values=['John Doe', '23', '10,000']
             ),
             'John Doe\t23\t10,000'
         ]
@@ -79,36 +80,45 @@ class FileProcessorTest(TestCase):
             'file with only header',
             LineProcessor([], ParserOptions()),
             [
-                ParsedLine(Line(index=0, header=True, line='Name\tAge\tSalary'))
+                ParsedLine(Line(file=create_autospec(TextReader), index=0, header=True, line='Name\tAge\tSalary'))
             ]
         ],
         [
             'file with one header and one data line',
             LineProcessor([], ParserOptions()),
             [
-                ParsedLine(Line(index=0, header=True, line='Name\tAge\tSalary')),
-                ParsedLine(Line(index=1, header=True, line='John Doe\t23\t10,000'), parsed_values=[
-                    'John Doe',
-                    '23',
-                    '10,000'
-                ])
+                ParsedLine(Line(file=create_autospec(TextReader), index=0, header=True, line='Name\tAge\tSalary')),
+                ParsedLine(
+                    Line(file=create_autospec(TextReader), index=1, header=True, line='John Doe\t23\t10,000'),
+                    parsed_values=[
+                        'John Doe',
+                        '23',
+                        '10,000'
+                    ]
+                )
             ]
         ],
         [
             'file with one header and two data lines',
             LineProcessor([], ParserOptions()),
             [
-                ParsedLine(Line(index=0, header=True, line='Name\tAge\tSalary')),
-                ParsedLine(Line(index=1, header=True, line='John Doe\t23\t10,000'), parsed_values=[
-                    'John Doe',
-                    '23',
-                    '10,000'
-                ]),
-                ParsedLine(Line(index=2, header=True, line='Bob Doe\t30\t50,000'), parsed_values=[
-                    'Bob Doe',
-                    '30',
-                    '50,000'
-                ])
+                ParsedLine(Line(file=create_autospec(TextReader), index=0, header=True, line='Name\tAge\tSalary')),
+                ParsedLine(
+                    Line(file=create_autospec(TextReader), index=1, header=True, line='John Doe\t23\t10,000'),
+                    parsed_values=[
+                        'John Doe',
+                        '23',
+                        '10,000'
+                    ]
+                ),
+                ParsedLine(
+                    Line(file=create_autospec(TextReader), index=2, header=True, line='Bob Doe\t30\t50,000'),
+                    parsed_values=[
+                        'Bob Doe',
+                        '30',
+                        '50,000'
+                    ]
+                )
             ]
         ]
     ])
@@ -167,36 +177,45 @@ class FileProcessorIntegrationTest(TestCase):
             '01_correct_file_with_commas.csv',
             ParserOptions(field_terminator=',', field_enclosing_value='"'),
             [
-                ParsedLine(Line(index=0, header=True, line='Name,Age,Salary\n')),
-                ParsedLine(Line(index=1, header=False, line='John Doe,23,"10,000"'), parsed_values=[
-                    'John Doe',
-                    '23',
-                    '10,000'
-                ])
+                ParsedLine(Line(file=create_autospec(TextReader), index=0, header=True, line='Name,Age,Salary\n')),
+                ParsedLine(
+                    Line(file=create_autospec(TextReader), index=1, header=False, line='John Doe,23,"10,000"'),
+                    parsed_values=[
+                        'John Doe',
+                        '23',
+                        '10,000'
+                    ]
+                )
             ]
         ],
         [
             '02_correct_file_with_tabulations.csv',
             ParserOptions(field_terminator='\t', field_enclosing_value='"'),
             [
-                ParsedLine(Line(index=0, header=True, line='Name\tAge\tSalary\n')),
-                ParsedLine(Line(index=1, header=False, line='John Doe\t23\t10,000'), parsed_values=[
-                    'John Doe',
-                    '23',
-                    '10,000'
-                ])
+                ParsedLine(Line(file=create_autospec(TextReader), index=0, header=True, line='Name\tAge\tSalary\n')),
+                ParsedLine(
+                    Line(file=create_autospec(TextReader), index=1, header=False, line='John Doe\t23\t10,000'),
+                    parsed_values=[
+                        'John Doe',
+                        '23',
+                        '10,000'
+                    ]
+                )
             ]
         ],
         [
             '02_correct_file_with_tabulations.csv',
             ParserOptions(field_terminator='\t', field_enclosing_value='"'),
             [
-                ParsedLine(Line(index=0, header=True, line='Name\tAge\tSalary\n')),
-                ParsedLine(Line(index=1, header=False, line='John Doe\t23\t10,000'), parsed_values=[
-                    'John Doe',
-                    '23',
-                    '10,000'
-                ])
+                ParsedLine(Line(file=create_autospec(TextReader), index=0, header=True, line='Name\tAge\tSalary\n')),
+                ParsedLine(
+                    Line(file=create_autospec(TextReader), index=1, header=False, line='John Doe\t23\t10,000'),
+                    parsed_values=[
+                        'John Doe',
+                        '23',
+                        '10,000'
+                    ]
+                )
             ]
         ]
     ])
@@ -222,4 +241,8 @@ class FileProcessorIntegrationTest(TestCase):
             file_processor.process(input_file_path, output_file_path)
 
         # Assert
-        self.assertEqual(expected_parsed_lines, parsed_lines)
+        for expected_parsed_line, parsed_line in zip(expected_parsed_lines, parsed_lines):
+            self.assertEqual(expected_parsed_line.index, parsed_line.index)
+            self.assertEqual(expected_parsed_line.header, parsed_line.header)
+            self.assertEqual(expected_parsed_line.line, parsed_line.line)
+            self.assertEqual(expected_parsed_line.parsed_values, parsed_line.parsed_values)

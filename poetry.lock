@@ -166,7 +166,7 @@ isort = ">=4.2.5,<5"
 mccabe = ">=0.6,<0.7"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Python 2 and 3 compatibility utilities"
 name = "six"
 optional = false
@@ -198,7 +198,7 @@ python-versions = "*"
 version = "1.11.2"
 
 [metadata]
-content-hash = "9a68e05bb7600dcd1e5a9982cbc1cb3f77df0ef744157a5c85301aa73f5dbca4"
+content-hash = "bf522a096cd12f8e69fd211b3bfea1c647ff247ed4a85692217f53e3a4650e01"
 python-versions = "^3.7"
 
 [metadata.files]

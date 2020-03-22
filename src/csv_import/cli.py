@@ -5,7 +5,7 @@ import logging
 import os
 import sys
 from types import TracebackType
-from typing import Type, Optional
+from typing import Optional, Type
 
 import click
 
@@ -35,7 +35,7 @@ sys.excepthook = excepthook
 
 @click.group()
 @click.pass_context
-def cli(*args, **kwargs) -> None:
+def cli(*args, **kwargs) -> None:  # type: ignore
     """
     csv-import is a tool designed to simplify the process of importing CSVs into relational databases.
     It allows you to easily create your own processors to adapt CSVs format to the requirements imposed by databases.
@@ -90,7 +90,7 @@ def create_import_file(
             raise ValueError(f'Cannot FileParserFactory from {parser_factory_file}')
 
         parser_factory_module = importlib.util.module_from_spec(parser_factory_module_spec)
-        parser_factory_module_spec.loader.exec_module(parser_factory_module)
+        parser_factory_module_spec.loader.exec_module(parser_factory_module)  # type: ignore
 
         for module_type_name, module_type in inspect.getmembers(parser_factory_module):
             if inspect.isclass(module_type) and issubclass(module_type, FileParserFactory):
